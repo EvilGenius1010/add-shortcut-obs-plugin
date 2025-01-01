@@ -1,6 +1,8 @@
-import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
+import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting, Workspace } from 'obsidian';
 
 // Remember to rename these classes and interfaces!
+
+
 
 interface MyPluginSettings {
 	mySetting: string;
@@ -15,18 +17,68 @@ export default class MyPlugin extends Plugin {
 
 	async onload() {
 		await this.loadSettings();
-
+		
+		
+		/*Configure this button to show all instances here. */
 		// This creates an icon in the left ribbon.
 		const ribbonIconEl = this.addRibbonIcon('dice', 'Sample Plugin', (evt: MouseEvent) => {
 			// Called when the user clicks the icon.
-			new Notice('This is a notice!');
+			new Notice('sieg heil!');
 		});
 		// Perform additional things with the ribbon
 		ribbonIconEl.addClass('my-plugin-ribbon-class');
-
+		
+		/*
 		// This adds a status bar item to the bottom of the app. Does not work on mobile apps.
 		const statusBarItemEl = this.addStatusBarItem();
 		statusBarItemEl.setText('Status Bar Text');
+		*/
+
+		//this adds a command which checks for certain patterns inside editor.
+		this.addCommand({
+			id:"identify-n-add-to-pages",
+			name:"Identify path and add to Pages",
+			hotkeys:[{modifiers:['Mod','Shift'],key:'`'}],
+			editorCallback:(editor:Editor,view:MarkdownView)=>{
+				const wspace = new Workspace()
+				wspace.on('editor-change',(editor: Editor, info: MarkdownView)=>{
+					console.log("check!!")
+					})
+				// editor.setValue("kachow")
+				// let lastLine = editor.lineCount()
+				let cursorPosition = editor.getCursor() //get the line the cursor is at.
+				// let lastLineContent = editor.getLine(lastLine-1)
+				let currLineContent = editor.getLine(cursorPosition.line) //get content of that line.
+				console.log(currLineContent,cursorPosition)
+				// editor.setLine(lastLine-1,currLineContent+"kachow!")
+				editor.setLine(cursorPosition.line,currLineContent+"kachow!") //set the line to be the same.
+			}
+			
+		})
+		
+		this.addCommand({
+			id:"cmd2",
+			name:"cmd2",
+			callback:()=>{
+				
+			}
+		})
+
+		this.app.workspace.on('editor-change',(editor: Editor, info: MarkdownView)=>{
+			// console.log("check!!")
+
+			function CheckSyntax(editor:Editor,info: MarkdownView){
+				let currCursorPosition = editor.getCursor()
+				console.log(editor.getLine(currCursorPosition.line))
+				const initializerPattern = new RegExp(/<@([^>\\n\\r]*)>/i) //check regex.
+				if(editor.getLine(currCursorPosition.line).match(initializerPattern)){
+					console.log("daskll")
+				}
+
+			}
+			CheckSyntax(editor,info)
+			})
+
 
 		// This adds a simple command that can be triggered anywhere
 		this.addCommand({
@@ -41,8 +93,10 @@ export default class MyPlugin extends Plugin {
 			id: 'sample-editor-command',
 			name: 'Sample editor command',
 			editorCallback: (editor: Editor, view: MarkdownView) => {
+				console.log(editor.getValue())
 				console.log(editor.getSelection());
 				editor.replaceSelection('Sample Editor Command');
+
 			}
 		});
 		// This adds a complex command that can check whether the current state of the app allows execution of the command
@@ -55,7 +109,7 @@ export default class MyPlugin extends Plugin {
 				if (markdownView) {
 					// If checking is true, we're simply "checking" if the command can be run.
 					// If checking is false, then we want to actually perform the operation.
-					if (!checking) {
+					if (checking) {
 						new SampleModal(this.app).open();
 					}
 
@@ -71,7 +125,8 @@ export default class MyPlugin extends Plugin {
 		// If the plugin hooks up any global DOM events (on parts of the app that doesn't belong to this plugin)
 		// Using this function will automatically remove the event listener when this plugin is disabled.
 		this.registerDomEvent(document, 'click', (evt: MouseEvent) => {
-			console.log('click', evt);
+			console.log("das")
+			// console.log('click', evt);
 		});
 
 		// When registering intervals, this function will automatically clear the interval when the plugin is disabled.
